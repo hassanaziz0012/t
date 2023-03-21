@@ -1,0 +1,36 @@
+{% extends 'base.html' %} {% block content %} {% if video.is_3d %}
+<!-- <a href="{% url 'download-video' video.id %}"> -->
+<!-- <button class="btn btn-dark">Download VR Video Preview</button> -->
+<!-- </a> -->
+<a class="btn btn-dark" href="{% url 'download-video' video.id %}"
+  >Download Full VR Video for $3.99</a
+>
+<deo-video title="{{ video.title }}" cover-image="{{ video.thumbnail.url }}">
+  <!-- <source src="{{ video.file.url }}" quality="3840p"/> -->
+</deo-video>
+
+{% elif not video.is_3d %}
+<a class="btn btn-dark" href="{% url 'download-video' video.id %}"
+  >Download Full video for $1.99</a
+>
+
+<video
+  id="my-video"
+  class="video-js vjs-default-skin vjs-big-play-centered vjs-16-9"
+  controls
+  preload="auto"
+  poster="{{ video.thumbnail.url }}"
+  height="500"
+  width="700"
+  data-setup='{"fluid": true}'
+>
+  <!-- <source src="{{ video.preview.url }}" type="video/mp4" /> -->
+  <p class="vjs-no-js">
+    To view this video please enable JavaScript, and consider upgrading to a web
+    browser that
+    <a href="https://videojs.com/html5-video-support/" target="_blank"
+      >supports HTML5 video</a
+    >
+  </p>
+</video>
+{% endif %} {% endblock content %}

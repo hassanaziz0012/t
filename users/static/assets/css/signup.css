@@ -1,0 +1,9 @@
+.signup {
+    color: #fff;
+    padding: 1em;
+    background: rgb(14, 14, 14)
+}
+
+.btn.btn-success, .form-control {
+    border-radius: 0;
+}

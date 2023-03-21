@@ -1,0 +1,67 @@
+body {
+    background: #000;
+}
+
+.nav {
+    margin-top: 2em;
+    background-color: rgb(14, 14, 14);
+}
+
+.nav-item .btn-dark {
+    background-color: rgb(14, 14, 14);
+    border: none;
+    margin: auto 20px;
+}
+
+img.header {
+    width: 100%;
+}
+
+.nav .nav-link {
+    color: #fff;
+}
+
+.video {
+    margin: 1em;
+    border: none;
+}
+
+.video .card-body {
+    background-color: rgb(14, 14, 14);
+    color: #fff;
+}
+
+.video .play-btn {
+    position: relative;
+    background-color: transparent;
+    border: none;
+    top: 50%;
+    left: 50%;
+}
+
+.video .play-btn i.fa {
+    font-size: 32px;
+}
+
+.video .thumbnail {
+    width: 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+}
+
+.video .thumbnail:hover {
+    cursor: pointer;
+    filter: brightness(50%);
+}
+
+.white-link {
+    color: #fff;
+    text-decoration: none;
+    font-style: normal;
+    transition: all 1s ease;
+}
+.white-link:hover {
+    text-decoration: underline;
+    color: #fff;
+}

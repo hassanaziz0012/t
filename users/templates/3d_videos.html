@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    {% for video in videos %}
+        <div class="col-lg-3">
+            <div class="card video">
+                <a href="{% url 'video' id=video.id %}" class="thumbnail-link">
+                    <div class="thumbnail img-fluid">
+                        <img src="{{ video.thumbnail.url }}" alt="thumbnail" class="img-fluid">
+                    </div>
+                </a>
+
+                <div class="card-body">
+                    <h3 class="card-title">{{ video.title }}</h3>
+
+                    <div class="pornstars">
+                        {% for pornstar in video.pornstars.all %}
+                            <a href="{% url 'pornstar' pornstar.id %}" class="white-link">
+                                <span class="pornstar">{{ pornstar.name }}</span>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock content %}

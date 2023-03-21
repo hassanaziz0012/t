@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    {% for pornstar in pornstars %}
+        <div class="col-lg-2 mb-5" style="width: 20%;">
+            <img src="{{ pornstar.image.url }}" alt="{{ pornstar.name }}" class="img-fluid" style="object-fit: cover; width: 100%;">
+            <h3 class="text-white"><a href="{% url 'pornstar' pornstar.id %}" class="white-link">{{ pornstar.name }}</a></h3>
+        </div>
+    {% endfor %}
+</div>
+{% endblock content %}  

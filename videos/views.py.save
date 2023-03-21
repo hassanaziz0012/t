@@ -1,0 +1,131 @@
+
+from django.http import HttpResponseRedirect, JsonResponse
+from django.conf import settings
+from django.shortcuts import render, reverse
+from django.views import View
+from videos.models import Video
+import boto
+from payments.models import Purchase
+from paypal.standard.forms import PayPalPaymentsForm
+import json
+import uuid
+
+# Create your views here.
+class VideoView(View):
+    def get(self, request, id):
+        video = Video.objects.get(pk=id)
+        return render(request, 'video.html', context={'video': video})
+        
+
+class DeoVRVideoView(View):
+    def get(self, request, id):
+        video: Video = Video.objects.get(pk=id)
+        return JsonResponse({
+            "id": video.pk,
+            "authorized": 0,
+            "title": video.title,
+            "description": video.title,
+            "fps": 60,
+            "viewAngle": 180,
+            "stereoMode": "sbs21",
+            "fullVideoReady": True,
+            "videoLength": 100,
+            "videoPreview": video.preview.url,
+            "encodings": [
+                {
+                    "name": "h264",
+                    "videoSources": [
+                        {
+                            "resolution": 3840,
+                            "url": video.file.url
+                        }
+                    ]
+                },
+                {
+                    "name": "h265",
+                    "videoSources": [
+                        {
+                            "resolution": 3840,
+                            "url": video.file.url
+                        }
+                    ]
+                }
+            ],
+            "thumbnailUrl": video.thumbnail.url,
+            "screenType": "sphere",
+            "is3d": True,
+            "skipIntro": 0,
+        })
+
+
+class DeoVRVideosView(View):
+    def get(self, request):
+        video_list = []
+        for video in Video.objects.filter(is_3d=True):
+            video_list.append({
+                'title': video.title,
+                'thumbnailUrl': video.thumbnail.url,
+                'video_url': f"https://www.deepinsex.com{reverse('deovr-video', kwargs={'id': video.id})}",
+                'videoLength': 1000
+            })
+
+        resp = {
+            "authorized": 0,
+            "scenes": [
+                {
+                    "name": "DeepInSex VR Videos",
+                    "list": video_list
+                }
+            ]
+        }
+
+        return JsonResponse(resp)
+
+
+class DownloadVideoView(View):
+    def get(self, request, id):
+        video = Video.objects.get(pk=id)
+        try:
+            # this will run if user has already purchased this video before
+                purchased = Purchase.objects.get(resource=video, purchaser=request.user )
+                video = Video.objects.get(pk=id)
+                conn = boto.connect_s3(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
+                bucket = conn.get_bucket('deepinsex')
+                s3_file_path = bucket.get_key(f'/media/{video.preview.name}')
+                url = s3_file_path.generate_url(expires_in=600)
+                return HttpResponseRedirect(url)
+        except Purchase.DoesNotExist:
+                product_price = 1.99
+
+                user = request.user
+
+                if video.is_3d:
+                     product_price = 3.99
+
+                initial_dict = {
+                "business": settings.PAYPAL_RECEIVER_EMAIL ,
+                "amount": product_price,
+                "currency_code": "USD",
+                "item_name": video.title,
+                "invoice": f"{uuid.uuid4()}",
+                "notify_url": request.build_absolute_uri(reverse('paypal-ipn')),
+                "return_url": request.build_absolute_uri(reverse('paypal_pdp_return')),
+                "cancel_return":request.build_absolute_uri(reverse('paypal-cancel')),
+                "lc": 'EN',
+                "no_shipping": '1',
+                "custom":json.dumps({
+                        "user_id":user.id, 
+                        "single_purchase":"True",
+                        "video_id":video.id
+                })
+            
+                }
+
+                form = PayPalPaymentsForm(initial=initial_dict)
+
+                context = {
+                    "form":form,
+                    "item_name":video.title,
+                    "item_price":product_price
+                }
+                return render(request, "payments/payment_form.html", context=context)
